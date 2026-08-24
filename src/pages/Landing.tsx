@@ -103,13 +103,15 @@ export default function Landing() {
               transition={{ duration: 0.6, delay: 0.1 }}
               className="text-5xl sm:text-6xl lg:text-7xl font-black leading-[1.05] tracking-tight mb-6"
             >
-              <span className="text-white">Every route.</span>
-              <br />
               <span className="bg-gradient-to-r from-teal-400 via-emerald-400 to-amber-400 bg-clip-text text-transparent">
-                Every mode.
+                MICROWAY
               </span>
               <br />
-              <span className="text-white">One smart choice.</span>
+              <span className="text-white">Find the route that's best</span>
+              <br />
+              <span className="bg-gradient-to-r from-amber-400 via-teal-400 to-emerald-400 bg-clip-text text-transparent">
+                for YOU.
+              </span>
             </motion.h1>
 
             <motion.p
