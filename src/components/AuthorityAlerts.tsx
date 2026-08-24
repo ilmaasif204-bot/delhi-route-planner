@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { AlertTriangle, Bell, CheckCircle, X, ChevronDown, ChevronUp } from "lucide-react";
+import { AlertTriangle, Bell, CheckCircle, ChevronDown, ChevronUp } from "lucide-react";
 import type { HotspotCluster } from "@/types/route";
 
 interface AuthorityAlertsProps {
@@ -32,22 +32,21 @@ export default function AuthorityAlerts({ hotspots }: AuthorityAlertsProps) {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4 }}
-      className="bg-vintage-card border border-red-300/50 rounded-xl overflow-hidden shadow-sm"
+      className="bg-[#1e293b]/60 border border-red-500/20 rounded-2xl overflow-hidden"
     >
-      {/* Header */}
       <button
         onClick={() => setExpanded(!expanded)}
-        className="w-full flex items-center justify-between p-4 hover:bg-red-50/30 transition-colors"
+        className="w-full flex items-center justify-between p-4 hover:bg-red-500/5 transition-colors"
       >
         <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-lg bg-red-100 flex items-center justify-center">
-            <AlertTriangle className="h-4 w-4 text-red-600" />
+          <div className="w-9 h-9 rounded-xl bg-red-500/15 flex items-center justify-center">
+            <AlertTriangle className="h-4.5 w-4.5 text-red-400" />
           </div>
           <div className="text-left">
-            <h3 className="text-sm font-semibold text-vintage-text" style={{ fontFamily: "'EB Garamond', Georgia, serif" }}>
+            <h3 className="text-sm font-bold text-white">
               🚨 Authority Alert Panel
             </h3>
-            <p className="text-[11px] text-vintage-muted">
+            <p className="text-[11px] text-slate-500">
               {flaggedHotspots.length} flagged zone{flaggedHotspots.length > 1 ? "s" : ""} require{flaggedHotspots.length === 1 ? "s" : ""} attention
             </p>
           </div>
@@ -59,20 +58,19 @@ export default function AuthorityAlerts({ hotspots }: AuthorityAlertsProps) {
                 e.stopPropagation();
                 handleNotifyAll();
               }}
-              className="text-[10px] px-2 py-1 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors"
+              className="text-[10px] px-2.5 py-1 bg-red-500 text-white rounded-lg hover:bg-red-400 transition-colors font-bold"
             >
               Notify All
             </button>
           )}
           {expanded ? (
-            <ChevronUp className="h-4 w-4 text-vintage-muted" />
+            <ChevronUp className="h-4 w-4 text-slate-500" />
           ) : (
-            <ChevronDown className="h-4 w-4 text-vintage-muted" />
+            <ChevronDown className="h-4 w-4 text-slate-500" />
           )}
         </div>
       </button>
 
-      {/* Expanded table */}
       <AnimatePresence>
         {expanded && (
           <motion.div
@@ -82,43 +80,43 @@ export default function AuthorityAlerts({ hotspots }: AuthorityAlertsProps) {
             transition={{ duration: 0.2 }}
             className="overflow-hidden"
           >
-            <div className="border-t border-vintage-border">
-              <table className="w-full text-sm" style={{ fontFamily: "'EB Garamond', Georgia, serif" }}>
+            <div className="border-t border-white/5">
+              <table className="w-full text-sm">
                 <thead>
-                  <tr className="bg-vintage-cream text-[10px] tracking-wider uppercase text-vintage-muted">
-                    <th className="text-left px-4 py-2 font-medium">Zone</th>
-                    <th className="text-center px-3 py-2 font-medium">Reports</th>
-                    <th className="text-center px-3 py-2 font-medium">Severity</th>
-                    <th className="text-center px-3 py-2 font-medium">Trend</th>
-                    <th className="text-center px-3 py-2 font-medium">Action</th>
+                  <tr className="text-[10px] tracking-wider uppercase text-slate-600 font-semibold">
+                    <th className="text-left px-4 py-2">Zone</th>
+                    <th className="text-center px-3 py-2">Reports</th>
+                    <th className="text-center px-3 py-2">Severity</th>
+                    <th className="text-center px-3 py-2">Trend</th>
+                    <th className="text-center px-3 py-2">Action</th>
                   </tr>
                 </thead>
                 <tbody>
                   {flaggedHotspots.map((h) => (
-                    <tr key={h.id} className="border-t border-vintage-border/40">
-                      <td className="px-4 py-2.5 text-vintage-text font-medium">
+                    <tr key={h.id} className="border-t border-white/5">
+                      <td className="px-4 py-2.5 text-white font-medium">
                         Hotspot #{h.id.split("-")[1]}
-                        <div className="text-[10px] text-vintage-muted">
+                        <div className="text-[10px] text-slate-600">
                           {h.centerLat.toFixed(3)}, {h.centerLng.toFixed(3)}
                         </div>
                       </td>
-                      <td className="px-3 py-2.5 text-center text-vintage-text">{h.count}</td>
+                      <td className="px-3 py-2.5 text-center text-slate-300 font-bold">{h.count}</td>
                       <td className="px-3 py-2.5 text-center">
                         <span
-                          className="px-2 py-0.5 rounded-full text-[10px] font-medium"
+                          className="px-2 py-0.5 rounded-full text-[10px] font-bold"
                           style={{
                             backgroundColor:
                               h.avgSeverity >= 4
-                                ? "#FEE2E2"
+                                ? "rgba(239,68,68,0.15)"
                                 : h.avgSeverity >= 3
-                                  ? "#FEF3C7"
-                                  : "#ECFDF5",
+                                  ? "rgba(245,158,11,0.15)"
+                                  : "rgba(34,197,94,0.15)",
                             color:
                               h.avgSeverity >= 4
-                                ? "#DC2626"
+                                ? "#f87171"
                                 : h.avgSeverity >= 3
-                                  ? "#D97706"
-                                  : "#059669",
+                                  ? "#fbbf24"
+                                  : "#4ade80",
                           }}
                         >
                           {h.avgSeverity.toFixed(1)}/5
@@ -126,22 +124,22 @@ export default function AuthorityAlerts({ hotspots }: AuthorityAlertsProps) {
                       </td>
                       <td className="px-3 py-2.5 text-center">
                         {h.trend === "rising" ? (
-                          <span className="text-[10px] font-bold text-red-600">📈 Rising</span>
+                          <span className="text-[10px] font-black text-red-400">📈 Rising</span>
                         ) : h.trend === "falling" ? (
-                          <span className="text-[10px] text-green-600">📉 Falling</span>
+                          <span className="text-[10px] font-bold text-emerald-400">📉 Falling</span>
                         ) : (
-                          <span className="text-[10px] text-vintage-muted">— Stable</span>
+                          <span className="text-[10px] text-slate-600">— Stable</span>
                         )}
                       </td>
                       <td className="px-3 py-2.5 text-center">
                         {notified.has(h.id) ? (
-                          <span className="inline-flex items-center gap-1 text-[10px] text-green-700">
+                          <span className="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-400">
                             <CheckCircle className="h-3 w-3" /> Notified
                           </span>
                         ) : (
                           <button
                             onClick={() => handleNotify(h.id)}
-                            className="inline-flex items-center gap-1 text-[10px] px-2 py-1 bg-red-600 text-white rounded hover:bg-red-700 transition-colors"
+                            className="inline-flex items-center gap-1 text-[10px] px-2.5 py-1 bg-red-500 text-white rounded-lg hover:bg-red-400 transition-colors font-bold"
                           >
                             <Bell className="h-2.5 w-2.5" /> Notify
                           </button>
@@ -153,8 +151,8 @@ export default function AuthorityAlerts({ hotspots }: AuthorityAlertsProps) {
               </table>
             </div>
 
-            <div className="px-4 py-2.5 bg-vintage-cream/50 text-[10px] text-vintage-muted italic">
-              Simulated dashboard — in production, "Notify" would send alerts to the Municipal Corporation of Delhi (MCD) and CPCB
+            <div className="px-4 py-2.5 text-[10px] text-slate-600 italic border-t border-white/5">
+              Simulated dashboard — in production, "Notify" sends alerts to the Municipal Corporation of Delhi (MCD) and CPCB
             </div>
           </motion.div>
         )}

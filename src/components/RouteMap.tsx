@@ -298,13 +298,13 @@ export default function RouteMap({
       </MapContainer>
 
       {/* Map legend overlay */}
-      <div className="absolute bottom-3 right-3 z-[1000] bg-vintage-card/95 backdrop-blur-sm border border-vintage-border rounded-lg px-3 py-2 text-[10px] shadow-sm">
-        <div className="font-bold mb-1 text-vintage-text" style={{ fontFamily: "'EB Garamond', Georgia, serif" }}>Legend</div>
+      <div className="absolute bottom-3 right-3 z-[1000] bg-[#1e293b]/95 backdrop-blur-sm border border-white/10 rounded-xl px-3 py-2.5 text-[10px] shadow-xl">
+        <div className="font-bold mb-1 text-white">Legend</div>
         <div className="flex flex-col gap-0.5">
-          <div className="flex items-center gap-1.5"><div className="w-2.5 h-2.5 rounded-full bg-[#2d5016]" /> Source</div>
-          <div className="flex items-center gap-1.5"><div className="w-2.5 h-2.5 rounded-full bg-[#8B0000]" /> Destination</div>
-          {showAqiLayer && <div className="flex items-center gap-1.5"><div className="w-2.5 h-2.5 rounded-full bg-[#FF9800]" /> AQI Station</div>}
-          {showHotspots && <div className="flex items-center gap-1.5"><div className="w-2.5 h-2.5 rounded-full border border-red-600" /> Hotspot</div>}
+          <div className="flex items-center gap-1.5 text-slate-400"><div className="w-2.5 h-2.5 rounded-full bg-teal-400" /> Source</div>
+          <div className="flex items-center gap-1.5 text-slate-400"><div className="w-2.5 h-2.5 rounded-full bg-red-500" /> Destination</div>
+          {showAqiLayer && <div className="flex items-center gap-1.5 text-slate-400"><div className="w-2.5 h-2.5 rounded-full bg-amber-400" /> AQI Station</div>}
+          {showHotspots && <div className="flex items-center gap-1.5 text-slate-400"><div className="w-2.5 h-2.5 rounded-full border border-red-400" /> Hotspot</div>}
         </div>
       </div>
     </div>
