@@ -21,6 +21,7 @@ export interface RouteOption {
   polyline: [number, number][]; // lat/lng pairs for map
   available: boolean;
   unavailableReason?: string;
+  walkingDistance?: number; // km — last-mile walking distance
   balancedScore?: number;
   rank?: number;
   badges?: string[];
@@ -30,9 +31,10 @@ export interface WeightParams {
   fare: number;
   time: number;
   co2: number;
-  safety: number;
-  airQuality: number;
+  walking: number;
 }
+
+export type Priority = "cheapest" | "fastest" | "greenest" | "balanced";
 
 export interface CitizenReport {
   id: string;

@@ -3,11 +3,11 @@ import { motion, AnimatePresence } from "framer-motion";
 import {
   Map, Table, ChevronLeft, Leaf, Loader, MapPin,
   Navigation, Search, X, Clock, IndianRupee, TrendingUp,
+  RotateCcw, Info, Trophy, Route, Wind, Footprints, Zap,
 } from "lucide-react";
 import RouteMap from "@/components/RouteMap";
 import RouteCards from "@/components/RouteCards";
 import CompareTable from "@/components/CompareTable";
-import WeightSliders from "@/components/WeightSliders";
 import ReportButton from "@/components/ReportButton";
 import AuthorityAlerts from "@/components/AuthorityAlerts";
 import EmissionsChart from "@/components/EmissionsChart";
@@ -18,11 +18,12 @@ import { detectHotspots, computeRouteAirQualityExposure } from "@/utils/dbscan";
 import { fetchDelhiAQI } from "@/utils/airquality";
 import { generateSeedReports } from "@/utils/seedData";
 import { searchDelhiLocations, type GeoSuggestion } from "@/utils/geocoding";
-import { MODES } from "@/config/transport";
+import { MODES, PRIORITY_WEIGHTS } from "@/config/transport";
 import type {
   GeoLocation,
   RouteOption,
   WeightParams,
+  Priority,
   HotspotCluster,
   AQIStation,
   CitizenReport,
@@ -33,6 +34,13 @@ const POPULAR_ROUTES = [
   { from: "Rohini", to: "Nehru Place", lat1: 28.7426, lng1: 77.1128, lat2: 28.5491, lng2: 77.2510 },
   { from: "Dwarka", to: "Connaught Place", lat1: 28.5523, lng1: 77.0585, lat2: 28.6315, lng2: 77.2167 },
   { from: "Karol Bagh", to: "Hauz Khas", lat1: 28.6514, lng1: 77.1898, lat2: 28.5490, lng2: 77.2003 },
+];
+
+const PRIORITY_OPTIONS: { id: Priority; label: string; icon: string; color: string; desc: string }[] = [
+  { id: "cheapest", label: "Cheapest", icon: "💰", color: "#f59e0b", desc: "Minimize cost" },
+  { id: "fastest", label: "Fastest", icon: "⚡", color: "#3b82f6", desc: "Minimize travel time" },
+  { id: "greenest", label: "Greenest", icon: "🌿", color: "#22c55e", desc: "Minimize CO₂ emissions" },
+  { id: "balanced", label: "Balanced", icon: "⚖️", color: "#a855f7", desc: "Best all-around route" },
 ];
 
 function LocationInput({
@@ -187,13 +195,8 @@ export default function RoutePlanner() {
   const [source, setSource] = useState<GeoLocation | null>(null);
   const [destination, setDestination] = useState<GeoLocation | null>(null);
   const [routes, setRoutes] = useState<RouteOption[]>([]);
-  const [weights, setWeights] = useState<WeightParams>({
-    fare: 0.20,
-    time: 0.25,
-    co2: 0.20,
-    safety: 0.20,
-    airQuality: 0.15,
-  });
+  const [priority, setPriority] = useState<Priority>("balanced");
+  const [weights, setWeights] = useState<WeightParams>(PRIORITY_WEIGHTS.balanced);
   const [loading, setLoading] = useState(false);
   const [selectedRoute, setSelectedRoute] = useState<string | null>(null);
   const [view, setView] = useState<"cards" | "table">("cards");
@@ -203,18 +206,19 @@ export default function RoutePlanner() {
   const [showAqiLayer, setShowAqiLayer] = useState(true);
   const [showHotspots, setShowHotspots] = useState(true);
   const [showReports, setShowReports] = useState(true);
+  const [showMapInfo, setShowMapInfo] = useState(false);
   const [aqiStations, setAqiStations] = useState<AQIStation[]>([]);
   const [hotspots, setHotspots] = useState<HotspotCluster[]>([]);
   const [citizenReports, setCitizenReports] = useState<CitizenReport[]>([]);
   const [chartMetric, setChartMetric] = useState<"co2" | "fare" | "time">("co2");
   const [hasSearched, setHasSearched] = useState(false);
+  const [showResults, setShowResults] = useState(false);
 
   // Load initial data
   useEffect(() => {
     const seed = generateSeedReports();
     setCitizenReports(seed);
     setHotspots(detectHotspots(seed));
-
     fetchDelhiAQI().then(setAqiStations);
   }, []);
 
@@ -223,11 +227,28 @@ export default function RoutePlanner() {
     setHotspots(detectHotspots(citizenReports));
   }, [citizenReports]);
 
+  // Update weights when priority changes
+  const handlePriorityChange = (p: Priority) => {
+    setPriority(p);
+    setWeights(PRIORITY_WEIGHTS[p]);
+  };
+
+  // Reset search
+  const handleReset = () => {
+    setSource(null);
+    setDestination(null);
+    setRoutes([]);
+    setSelectedRoute(null);
+    setHasSearched(false);
+    setShowResults(false);
+  };
+
   // Search handler
   const handleSearch = useCallback(async () => {
     if (!source || !destination) return;
     setLoading(true);
     setHasSearched(true);
+    setShowResults(false);
     try {
       const routeOptions = await generateRouteOptions(source, destination);
       const routesWithAQ = routeOptions.map((r) => ({
@@ -241,6 +262,7 @@ export default function RoutePlanner() {
       const scored = computeBalancedScores(routesWithAQ, weights);
       setRoutes(scored);
       setSelectedRoute(scored[0]?.id || null);
+      setShowResults(true);
     } catch (err) {
       console.error("Route generation error:", err);
     } finally {
@@ -263,7 +285,7 @@ export default function RoutePlanner() {
     setRoutes(scored);
   }, [weights]);
 
-  // Handle citizen report submission (with optional photo/video/description)
+  // Handle citizen report submission
   const handleSubmitReport = useCallback(
     (reportType: CitizenReportType, photo?: File, video?: File, description?: string) => {
       const getSeverity = (type: CitizenReportType) => {
@@ -314,10 +336,8 @@ export default function RoutePlanner() {
     });
   };
 
-  const handlePopularRoute = (route: typeof POPULAR_ROUTES[number]) => {
-    setSource({ lat: route.lat1, lng: route.lng1, label: route.from });
-    setDestination({ lat: route.lat2, lng: route.lng2, label: route.to });
-  };
+  // Best route for the results hero
+  const bestRoute = routes.length > 0 ? routes[0] : null;
 
   return (
     <div className="min-h-screen bg-[#0f172a]">
@@ -367,13 +387,74 @@ export default function RoutePlanner() {
               >
                 Reports ({citizenReports.length})
               </button>
+              {/* Info button for map layer explanations */}
+              <button
+                onClick={() => setShowMapInfo(!showMapInfo)}
+                className="px-2 py-1 rounded-md border border-white/10 text-slate-500 hover:text-white hover:border-white/20 transition-all"
+              >
+                <Info className="h-3 w-3" />
+              </button>
             </div>
           </div>
         </div>
+
+        {/* Map layers info box */}
+        <AnimatePresence>
+          {showMapInfo && (
+            <motion.div
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: "auto", opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              transition={{ duration: 0.25 }}
+              className="overflow-hidden border-t border-white/5"
+            >
+              <div className="max-w-7xl mx-auto px-4 py-4">
+                <div className="bg-[#0f172a] border border-white/10 rounded-xl p-4 grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
+                  <div className="flex items-start gap-3">
+                    <div className="w-8 h-8 rounded-lg bg-teal-500/15 flex items-center justify-center shrink-0">
+                      <Wind className="h-4 w-4 text-teal-400" />
+                    </div>
+                    <div>
+                      <div className="font-bold text-white mb-0.5">AQI Stations</div>
+                      <div className="text-slate-400 leading-relaxed">
+                        Live air quality monitoring stations across Delhi (CPCB network).
+                        Each dot shows the current Air Quality Index — green is good, red is hazardous.
+                      </div>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-3">
+                    <div className="w-8 h-8 rounded-lg bg-red-500/15 flex items-center justify-center shrink-0">
+                      <div className="w-3 h-3 rounded-full border-2 border-red-400 animate-pulse" />
+                    </div>
+                    <div>
+                      <div className="font-bold text-white mb-0.5">Pollution Hotspots</div>
+                      <div className="text-slate-400 leading-relaxed">
+                        Crowdsourced areas where multiple citizen reports cluster together.
+                        Detected using density-based clustering (DBSCAN) — flagged zones may have elevated pollution.
+                      </div>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-3">
+                    <div className="w-8 h-8 rounded-lg bg-amber-500/15 flex items-center justify-center shrink-0">
+                      <MapPin className="h-4 w-4 text-amber-400" />
+                    </div>
+                    <div>
+                      <div className="font-bold text-white mb-0.5">Citizen Reports</div>
+                      <div className="text-slate-400 leading-relaxed">
+                        Real-time reports from people on the ground — dust, smoke, garbage, or dirty areas.
+                        Tap the camera button to submit your own report with a photo or video.
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </header>
 
       <main className="max-w-7xl mx-auto px-4 py-4">
-        {/* Search Bar */}
+        {/* Search Bar + Reset */}
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
@@ -404,6 +485,25 @@ export default function RoutePlanner() {
                 placeholder="e.g. Nehru Place, Dwarka..."
               />
 
+              {/* Reset button */}
+              {(source || destination) && (
+                <motion.button
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.8 }}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={handleReset}
+                  className="flex items-center gap-1.5 px-3 py-2.5 rounded-xl font-semibold text-xs
+                             border border-white/10 text-slate-400 hover:text-white hover:border-white/20
+                             transition-all shrink-0"
+                  title="Clear search"
+                >
+                  <RotateCcw className="h-3.5 w-3.5" />
+                  Reset
+                </motion.button>
+              )}
+
               <motion.button
                 whileHover={{ scale: 1.03 }}
                 whileTap={{ scale: 0.97 }}
@@ -419,8 +519,55 @@ export default function RoutePlanner() {
                 ) : (
                   <Search className="h-4 w-4" />
                 )}
-                {loading ? "Calculating..." : "Compare Routes"}
+                {loading ? "Calculating..." : "Find Best Route"}
               </motion.button>
+            </div>
+          </div>
+        </motion.div>
+
+        {/* Priority Selector */}
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4, delay: 0.15 }}
+          className="mt-4"
+        >
+          <div className="bg-[#1e293b] border border-white/10 rounded-2xl p-4 shadow-lg">
+            <div className="flex items-center gap-2 mb-3">
+              <Zap className="h-4 w-4 text-teal-400" />
+              <h3 className="text-sm font-bold text-white">Priority</h3>
+              <span className="text-[10px] text-slate-500 font-medium">— choose what matters most to you</span>
+            </div>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+              {PRIORITY_OPTIONS.map((opt) => {
+                const isActive = priority === opt.id;
+                return (
+                  <motion.button
+                    key={opt.id}
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.97 }}
+                    onClick={() => handlePriorityChange(opt.id)}
+                    className={`relative flex flex-col items-center gap-1 px-3 py-3 rounded-xl border transition-all ${
+                      isActive
+                        ? "border-white/20 bg-white/5 shadow-lg"
+                        : "border-white/5 hover:border-white/10"
+                    }`}
+                    style={isActive ? { boxShadow: `0 0 20px ${opt.color}15` } : undefined}
+                  >
+                    <span className="text-xl">{opt.icon}</span>
+                    <span className="text-xs font-bold text-white">{opt.label}</span>
+                    <span className="text-[10px] text-slate-500">{opt.desc}</span>
+                    {isActive && (
+                      <motion.div
+                        layoutId="priorityIndicator"
+                        className="absolute -bottom-0.5 left-1/2 -translate-x-1/2 w-8 h-0.5 rounded-full"
+                        style={{ backgroundColor: opt.color }}
+                        transition={{ type: "spring", stiffness: 400, damping: 30 }}
+                      />
+                    )}
+                  </motion.button>
+                );
+              })}
             </div>
           </div>
         </motion.div>
@@ -457,6 +604,89 @@ export default function RoutePlanner() {
             </div>
           </motion.div>
         )}
+
+        {/* 🏆 BEST ROUTE HERO — shown after search */}
+        <AnimatePresence>
+          {showResults && bestRoute && !loading && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.5, delay: 0.1 }}
+              className="mt-6"
+            >
+              <div className="relative bg-gradient-to-br from-[#1e293b] via-[#0f172a] to-[#1e293b] border border-white/10 rounded-2xl p-6 shadow-2xl overflow-hidden">
+                {/* Decorative glow */}
+                <div className="absolute top-0 right-0 w-48 h-48 bg-teal-500/5 rounded-full blur-3xl" />
+                <div className="absolute bottom-0 left-0 w-32 h-32 bg-emerald-500/5 rounded-full blur-3xl" />
+
+                <div className="relative z-10">
+                  <div className="flex items-center gap-2 mb-1">
+                    <Trophy className="h-5 w-5 text-amber-400" />
+                    <span className="text-[11px] tracking-[0.2em] uppercase text-amber-400 font-bold">
+                      Best Route for You
+                    </span>
+                  </div>
+                  <div className="text-sm text-slate-400 mb-4">
+                    Based on your <span className="text-white font-semibold">{priority}</span> priority
+                  </div>
+
+                  <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+                    {/* Mode icon + name */}
+                    <div className="flex items-center gap-3">
+                      <div
+                        className="w-14 h-14 rounded-2xl flex items-center justify-center text-2xl shadow-lg"
+                        style={{ backgroundColor: `${bestRoute.modeColor}20`, border: `1px solid ${bestRoute.modeColor}40` }}
+                      >
+                        {bestRoute.modeIcon}
+                      </div>
+                      <div>
+                        <div className="text-lg font-extrabold text-white">{bestRoute.modeLabel}</div>
+                        <div className="text-xs text-slate-500">Recommended transport mode</div>
+                      </div>
+                    </div>
+
+                    {/* Stats */}
+                    <div className="flex flex-wrap gap-3 sm:ml-auto">
+                      <div className="flex items-center gap-2 bg-white/5 rounded-xl px-3 py-2">
+                        <Clock className="h-4 w-4 text-blue-400" />
+                        <div>
+                          <div className="text-sm font-bold text-white">{bestRoute.time} min</div>
+                          <div className="text-[10px] text-slate-500">Travel time</div>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2 bg-white/5 rounded-xl px-3 py-2">
+                        <IndianRupee className="h-4 w-4 text-amber-400" />
+                        <div>
+                          <div className="text-sm font-bold text-white">₹{bestRoute.fare}</div>
+                          <div className="text-[10px] text-slate-500">Estimated fare</div>
+                        </div>
+                      </div>
+                      {bestRoute.walkingDistance !== undefined && bestRoute.walkingDistance > 0 && (
+                        <div className="flex items-center gap-2 bg-white/5 rounded-xl px-3 py-2">
+                          <Footprints className="h-4 w-4 text-teal-400" />
+                          <div>
+                            <div className="text-sm font-bold text-white">{bestRoute.walkingDistance} km</div>
+                            <div className="text-[10px] text-slate-500">Walking distance</div>
+                          </div>
+                        </div>
+                      )}
+                      <div className="flex items-center gap-2 bg-white/5 rounded-xl px-3 py-2">
+                        <Leaf className="h-4 w-4 text-emerald-400" />
+                        <div>
+                          <div className="text-sm font-bold text-white">
+                            {bestRoute.co2 >= 1000 ? `${(bestRoute.co2 / 1000).toFixed(1)} kg` : `${bestRoute.co2}g`}
+                          </div>
+                          <div className="text-[10px] text-slate-500">CO₂ emissions</div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         {/* Main Content */}
         <div className="mt-5 grid grid-cols-1 lg:grid-cols-5 gap-5">
@@ -587,11 +817,6 @@ export default function RoutePlanner() {
                   Select source and destination to compare routes
                 </p>
               </div>
-            )}
-
-            {/* Weight Sliders */}
-            {routes.length > 0 && (
-              <WeightSliders weights={weights} onChange={setWeights} />
             )}
 
             {/* Authority Alerts */}

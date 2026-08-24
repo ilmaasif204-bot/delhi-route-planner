@@ -142,11 +142,18 @@ export const SAFETY_CONFIG: Record<ModeId, number> = {
 
 /** Default WSM weights (must sum to 1) */
 export const DEFAULT_WEIGHTS = {
-  fare: 0.20,
-  time: 0.25,
-  co2: 0.20,
-  safety: 0.20,
-  airQuality: 0.15,
+  fare: 0.30,
+  time: 0.30,
+  co2: 0.25,
+  walking: 0.15,
+};
+
+/** Preset weights for each priority */
+export const PRIORITY_WEIGHTS: Record<import("@/types/route").Priority, typeof DEFAULT_WEIGHTS> = {
+  cheapest: { fare: 0.50, time: 0.20, co2: 0.20, walking: 0.10 },
+  fastest:  { fare: 0.20, time: 0.50, co2: 0.20, walking: 0.10 },
+  greenest: { fare: 0.20, time: 0.20, co2: 0.50, walking: 0.10 },
+  balanced: { fare: 0.30, time: 0.30, co2: 0.25, walking: 0.15 },
 };
 
 /** Air quality bands */

@@ -148,13 +148,11 @@ export async function generateRouteOptions(
         unavailableReason = !srcMetro
           ? "No nearby metro station at source"
           : "No nearby metro station at destination";
-        // Still compute a placeholder
         distanceKm = directDistance;
         polyline = carPolyline;
       } else {
-        // Approximate metro distance as 1.2x direct distance (metro tracks are not straight)
         distanceKm = Math.round(directDistance * 1.2 * 100) / 100;
-        polyline = carPolyline; // simplified
+        polyline = carPolyline;
       }
     } else if (modeId === "cycle" && cycleRoute) {
       distanceKm = cycleRoute.distanceKm;
@@ -171,6 +169,16 @@ export async function generateRouteOptions(
     const time = computeTime(modeId, distanceKm);
     const co2 = Math.round(CO2_CONFIG[modeId] * distanceKm);
 
+    // Compute walking distance (last-mile for metro, 0 for others)
+    let walkingDistance = 0;
+    if (modeId === "metro") {
+      const srcMetro = findNearestMetro(source.lat, source.lng);
+      const destMetro = findNearestMetro(dest.lat, dest.lng);
+      const srcWalk = srcMetro?.distance ?? 0;
+      const destWalk = destMetro?.distance ?? 0;
+      walkingDistance = Math.round((srcWalk + destWalk) * 100) / 100;
+    }
+
     results.push({
       id: `${modeId}-${Date.now()}`,
       mode: modeId,
@@ -186,6 +194,7 @@ export async function generateRouteOptions(
       polyline,
       available,
       unavailableReason,
+      walkingDistance,
     });
   }
 

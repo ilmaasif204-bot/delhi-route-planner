@@ -21,8 +21,7 @@ export function computeBalancedScores(
   const fares = routes.map((r) => r.fare);
   const times = routes.map((r) => r.time);
   const co2s = routes.map((r) => r.co2);
-  const safeties = routes.map((r) => r.safety);
-  const aqs = routes.map((r) => r.airQualityScore);
+  const walks = routes.map((r) => r.walkingDistance ?? 0);
 
   // Min-max normalize helper
   const normalize = (vals: number[]): number[] => {
@@ -32,19 +31,14 @@ export function computeBalancedScores(
     return vals.map((v) => (v - min) / (max - min));
   };
 
-  // Lower is better for cost metrics (fare, time, CO2, air quality)
+  // All are cost metrics — lower is better
   const normFare = normalize(fares);
   const normTime = normalize(times);
   const normCO2 = normalize(co2s);
-  const normAQ = normalize(aqs);
-
-  // Higher is better for safety → invert for cost model
-  const normSafetyRaw = normalize(safeties);
-  const normSafetyCost = normSafetyRaw.map((v) => 1 - v);
+  const normWalk = normalize(walks);
 
   // Total weight sum (should be 1)
-  const wTotal =
-    weights.fare + weights.time + weights.co2 + weights.safety + weights.airQuality;
+  const wTotal = weights.fare + weights.time + weights.co2 + weights.walking;
 
   // Compute balanced scores
   const scored = routes.map((route, i) => {
@@ -52,8 +46,7 @@ export function computeBalancedScores(
       (weights.fare * normFare[i] +
         weights.time * normTime[i] +
         weights.co2 * normCO2[i] +
-        weights.safety * normSafetyCost[i] +
-        weights.airQuality * normAQ[i]) / wTotal;
+        weights.walking * normWalk[i]) / wTotal;
 
     return { ...route, balancedScore: Math.round(balancedScore * 1000) / 1000 };
   });
@@ -70,8 +63,6 @@ export function computeBalancedScores(
     if (route.fare === Math.min(...fares)) badges.push("Cheapest");
     if (route.time === Math.min(...times)) badges.push("Fastest");
     if (route.co2 === Math.min(...co2s)) badges.push("Greenest");
-    if (route.safety === Math.max(...safeties)) badges.push("Safest");
-    if (route.airQualityScore === Math.min(...aqs)) badges.push("Cleanest Air");
     if (rank === 1) badges.push("Best Overall");
 
     return { ...route, rank, badges };

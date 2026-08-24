@@ -1,7 +1,6 @@
 import { motion } from "framer-motion";
-import { IndianRupee, Clock, Leaf, Shield, Wind } from "lucide-react";
+import { IndianRupee, Clock, Leaf, Footprints } from "lucide-react";
 import type { WeightParams } from "@/types/route";
-import { DEFAULT_WEIGHTS } from "@/config/transport";
 
 interface WeightSlidersProps {
   weights: WeightParams;
@@ -17,27 +16,21 @@ const SLIDER_CONFIG: {
   { key: "fare", label: "Fare", icon: IndianRupee, color: "#f59e0b" },
   { key: "time", label: "Time", icon: Clock, color: "#3b82f6" },
   { key: "co2", label: "CO₂", icon: Leaf, color: "#22c55e" },
-  { key: "safety", label: "Safety", icon: Shield, color: "#a855f7" },
-  { key: "airQuality", label: "Air Quality", icon: Wind, color: "#06b6d4" },
+  { key: "walking", label: "Walking", icon: Footprints, color: "#06b6d4" },
 ];
 
 export default function WeightSliders({ weights, onChange }: WeightSlidersProps) {
   const handleChange = (key: keyof WeightParams, value: number) => {
     const newWeights = { ...weights, [key]: value };
-    const sum = newWeights.fare + newWeights.time + newWeights.co2 + newWeights.safety + newWeights.airQuality;
+    const sum = newWeights.fare + newWeights.time + newWeights.co2 + newWeights.walking;
     if (sum > 0) {
       onChange({
         fare: newWeights.fare / sum,
         time: newWeights.time / sum,
         co2: newWeights.co2 / sum,
-        safety: newWeights.safety / sum,
-        airQuality: newWeights.airQuality / sum,
+        walking: newWeights.walking / sum,
       });
     }
-  };
-
-  const handleReset = () => {
-    onChange(DEFAULT_WEIGHTS);
   };
 
   return (
@@ -47,17 +40,7 @@ export default function WeightSliders({ weights, onChange }: WeightSlidersProps)
       transition={{ duration: 0.3 }}
       className="bg-[#1e293b]/60 border border-white/[0.06] rounded-2xl p-4"
     >
-      <div className="flex items-center justify-between mb-3">
-        <h3 className="text-sm font-bold text-white">
-          ⚖️ Your Priorities
-        </h3>
-        <button
-          onClick={handleReset}
-          className="text-[10px] text-slate-500 hover:text-teal-400 transition-colors underline font-medium"
-        >
-          Reset
-        </button>
-      </div>
+      <h3 className="text-sm font-bold text-white mb-3">⚖️ Weights</h3>
 
       <div className="space-y-3">
         {SLIDER_CONFIG.map(({ key, label, icon: Icon, color }) => (
@@ -112,10 +95,6 @@ export default function WeightSliders({ weights, onChange }: WeightSlidersProps)
           />
         ))}
       </div>
-
-      <p className="text-[10px] text-slate-600 mt-2 text-center font-medium">
-        Drag to re-prioritize · Lower score = better route
-      </p>
     </motion.div>
   );
 }
