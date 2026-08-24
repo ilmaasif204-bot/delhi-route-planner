@@ -239,6 +239,8 @@ export default function RouteMap({
               smoky: "Smoky",
               burning: "Burning Smell",
               traffic_haze: "Traffic Haze",
+              garbage: "Garbage Spillage",
+              dirty: "Area Needs Cleaning",
             };
             return (
               <CircleMarker
@@ -251,14 +253,33 @@ export default function RouteMap({
                 weight={1}
               >
                 <Popup>
-                  <div className="text-center">
+                  <div className="text-center min-w-[150px]">
                     <div className="font-bold text-sm">
                       {typeLabels[report.reportType] || report.reportType}
                     </div>
                     <div className="text-xs">
                       Severity: {report.severity}/5
                     </div>
-                    <div className="text-[10px] text-gray-500">
+                    {report.photoUrl && (
+                      <img
+                        src={report.photoUrl}
+                        alt="Report"
+                        className="mt-2 rounded-lg w-full h-24 object-cover"
+                      />
+                    )}
+                    {report.videoUrl && (
+                      <video
+                        src={report.videoUrl}
+                        className="mt-2 rounded-lg w-full h-24 object-cover"
+                        muted
+                      />
+                    )}
+                    {report.description && (
+                      <p className="text-[11px] text-gray-600 mt-1.5 text-left bg-gray-50 p-1.5 rounded">
+                        {report.description}
+                      </p>
+                    )}
+                    <div className="text-[10px] text-gray-500 mt-1">
                       {new Date(report.timestamp).toLocaleString("en-IN")}
                     </div>
                   </div>

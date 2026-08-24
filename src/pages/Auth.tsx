@@ -15,7 +15,7 @@ import {
 } from "@/components/ui/input-otp";
 
 import { useAuth } from "@/hooks/use-auth";
-import { ArrowRight, Loader2, Mail, UserX, Map } from "lucide-react";
+import { ArrowRight, Loader2, Mail, Map } from "lucide-react";
 import { Suspense, useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router";
 
@@ -92,22 +92,6 @@ function Auth({ redirectAfterAuth }: AuthProps = {}) {
     }
   };
 
-  const handleGuestLogin = async () => {
-    setIsLoading(true);
-    setError(null);
-    try {
-      console.log("Attempting anonymous sign in...");
-      await signIn("anonymous");
-      console.log("Anonymous sign in successful");
-      navigate(redirect);
-    } catch (error) {
-      console.error("Guest login error:", error);
-      console.error("Error details:", JSON.stringify(error, null, 2));
-      setError(`Failed to sign in as guest: ${error instanceof Error ? error.message : 'Unknown error'}`);
-      setIsLoading(false);
-    }
-  };
-
   return (
     <div className="min-h-screen flex flex-col bg-[#0f172a] relative overflow-hidden">
       {/* Background gradient blobs */}
@@ -174,29 +158,7 @@ function Auth({ redirectAfterAuth }: AuthProps = {}) {
                       <p className="mt-2 text-sm text-red-400">{error}</p>
                     )}
 
-                    <div className="mt-5">
-                      <div className="relative">
-                        <div className="absolute inset-0 flex items-center">
-                          <span className="w-full border-t border-white/10" />
-                        </div>
-                        <div className="relative flex justify-center text-xs uppercase">
-                          <span className="bg-[#1e293b] px-2.5 text-slate-500 font-medium">
-                            or
-                          </span>
-                        </div>
-                      </div>
 
-                      <Button
-                        type="button"
-                        variant="outline"
-                        className="w-full mt-4 border-white/10 text-slate-300 hover:bg-white/5 hover:text-white"
-                        onClick={handleGuestLogin}
-                        disabled={isLoading}
-                      >
-                        <UserX className="mr-2 h-4 w-4" />
-                        Continue as Guest
-                      </Button>
-                    </div>
                   </CardContent>
                 </form>
               </>

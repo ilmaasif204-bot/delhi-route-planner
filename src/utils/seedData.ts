@@ -6,7 +6,7 @@ import type { CitizenReport, ReportType } from "@/types/route";
  * Clearly labeled as demo data, not real citizen submissions.
  */
 
-const REPORT_TYPES: ReportType[] = ["dusty", "smoky", "burning", "traffic_haze", "clear"];
+const REPORT_TYPES: ReportType[] = ["dusty", "smoky", "burning", "traffic_haze", "clear", "garbage", "dirty"];
 
 // Known Delhi pollution hotspots and corridors
 const HOTSPOT_CORRIDORS = [
@@ -56,10 +56,10 @@ export function generateSeedReports(): CitizenReport[] {
       const severityVar = ((id * 3 + 7) % 10) / 10 - 0.5; // -0.5 to 0.5
       const severity = Math.max(1, Math.min(5, Math.round(corridor.baseSeverity + severityVar)));
 
-      // Report type: weight towards "smoky" and "dusty" in bad areas
+      // Report type: weight towards "smoky", "burning", "garbage" in bad areas
       const typeIdx = corridor.baseSeverity > 4
-        ? (id % 3 === 0 ? 1 : id % 3 === 1 ? 2 : 3) // smoky, burning, haze
-        : id % 4; // spread across types
+        ? (id % 4 === 0 ? 1 : id % 4 === 1 ? 2 : id % 4 === 2 ? 5 : 3) // smoky, burning, garbage, haze
+        : id % 5; // spread across types
       const reportType = REPORT_TYPES[Math.abs(typeIdx) % REPORT_TYPES.length];
 
       // Timestamp: spread over last 12 hours

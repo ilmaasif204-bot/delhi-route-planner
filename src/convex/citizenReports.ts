@@ -11,8 +11,11 @@ export const create = mutation({
     lng: v.number(),
     severity: v.number(),
     reportType: v.string(),
+    description: v.optional(v.string()),
     timestamp: v.number(),
     photoUrl: v.optional(v.string()),
+    videoUrl: v.optional(v.string()),
+    mediaType: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
     const identity = await ctx.auth.getUserIdentity();
@@ -22,8 +25,11 @@ export const create = mutation({
       lng: args.lng,
       severity: args.severity,
       reportType: args.reportType,
+      description: args.description,
       timestamp: args.timestamp,
       photoUrl: args.photoUrl,
+      videoUrl: args.videoUrl,
+      mediaType: args.mediaType,
     });
     return id;
   },

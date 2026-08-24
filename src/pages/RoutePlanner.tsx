@@ -263,42 +263,42 @@ export default function RoutePlanner() {
     setRoutes(scored);
   }, [weights]);
 
-  // Handle citizen report submission
+  // Handle citizen report submission (with optional photo/video/description)
   const handleSubmitReport = useCallback(
-    (reportType: CitizenReportType) => {
+    (reportType: CitizenReportType, photo?: File, video?: File, description?: string) => {
+      const getSeverity = (type: CitizenReportType) => {
+        switch (type) {
+          case "clear": return 1;
+          case "dusty": return 3;
+          case "smoky": return 4;
+          case "burning": return 5;
+          case "garbage": return 4;
+          case "dirty": return 3;
+          default: return 3;
+        }
+      };
+
+      const createReport = (lat: number, lng: number) => {
+        const photoUrl = photo ? URL.createObjectURL(photo) : undefined;
+        const videoUrl = video ? URL.createObjectURL(video) : undefined;
+        const newReport: CitizenReport = {
+          id: `user-${Date.now()}`,
+          lat,
+          lng,
+          severity: getSeverity(reportType),
+          reportType,
+          timestamp: Date.now(),
+          photoUrl,
+          videoUrl,
+          description,
+        };
+        setCitizenReports((prev) => [...prev, newReport]);
+      };
+
       if ("geolocation" in navigator) {
         navigator.geolocation.getCurrentPosition(
-          (pos) => {
-            const newReport: CitizenReport = {
-              id: `user-${Date.now()}`,
-              lat: pos.coords.latitude,
-              lng: pos.coords.longitude,
-              severity:
-                reportType === "clear"
-                  ? 1
-                  : reportType === "dusty"
-                    ? 3
-                    : reportType === "smoky"
-                      ? 4
-                      : reportType === "burning"
-                        ? 5
-                        : 3,
-              reportType,
-              timestamp: Date.now(),
-            };
-            setCitizenReports((prev) => [...prev, newReport]);
-          },
-          () => {
-            const newReport: CitizenReport = {
-              id: `user-${Date.now()}`,
-              lat: 28.6139,
-              lng: 77.2090,
-              severity: reportType === "clear" ? 1 : 3,
-              reportType,
-              timestamp: Date.now(),
-            };
-            setCitizenReports((prev) => [...prev, newReport]);
-          }
+          (pos) => createReport(pos.coords.latitude, pos.coords.longitude),
+          () => createReport(28.6139, 77.2090)
         );
       }
     },

@@ -31,15 +31,18 @@ const schema = defineSchema(
       role: v.optional(roleValidator),
     }).index("email", ["email"]),
 
-    // Citizen AQI reports
+    // Citizen AQI and cleanliness reports
     citizenReports: defineTable({
       userId: v.optional(v.string()),
       lat: v.number(),
       lng: v.number(),
       severity: v.number(), // 1-5
-      reportType: v.string(), // clear | dusty | smoky | burning | traffic_haze
+      reportType: v.string(), // clear | dusty | smoky | burning | traffic_haze | garbage | dirty
+      description: v.optional(v.string()),
       timestamp: v.number(),
       photoUrl: v.optional(v.string()),
+      videoUrl: v.optional(v.string()),
+      mediaType: v.optional(v.string()), // "photo" | "video"
     })
       .index("by_location", ["lat", "lng"])
       .index("by_timestamp", ["timestamp"]),

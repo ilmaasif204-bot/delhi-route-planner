@@ -99,6 +99,21 @@ export default function AuthorityAlerts({ hotspots }: AuthorityAlertsProps) {
                         <div className="text-[10px] text-slate-600">
                           {h.centerLat.toFixed(3)}, {h.centerLng.toFixed(3)}
                         </div>
+                        {h.points.some((p) => p.photoUrl) && (
+                          <div className="flex gap-1 mt-1.5">
+                            {h.points
+                              .filter((p) => p.photoUrl)
+                              .slice(0, 3)
+                              .map((p, idx) => (
+                                <img
+                                  key={idx}
+                                  src={p.photoUrl}
+                                  alt="Report"
+                                  className="w-8 h-8 rounded-md object-cover border border-white/10"
+                                />
+                              ))}
+                          </div>
+                        )}
                       </td>
                       <td className="px-3 py-2.5 text-center text-slate-300 font-bold">{h.count}</td>
                       <td className="px-3 py-2.5 text-center">

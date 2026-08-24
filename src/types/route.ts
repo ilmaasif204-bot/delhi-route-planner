@@ -42,9 +42,11 @@ export interface CitizenReport {
   reportType: ReportType;
   timestamp: number;
   photoUrl?: string;
+  videoUrl?: string;
+  description?: string;
 }
 
-export type ReportType = "clear" | "dusty" | "smoky" | "burning" | "traffic_haze";
+export type ReportType = "clear" | "dusty" | "smoky" | "burning" | "traffic_haze" | "garbage" | "dirty";
 
 export interface HotspotCluster {
   id: string;
