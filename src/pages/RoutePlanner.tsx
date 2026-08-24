@@ -329,7 +329,7 @@ export default function RoutePlanner() {
               <Map className="h-4 w-4 text-white" />
             </div>
             <span className="text-base font-extrabold text-white tracking-tight group-hover:text-teal-300 transition-colors">
-              microway
+              MicroWay
             </span>
           </a>
           <span className="text-[10px] tracking-wider uppercase text-slate-500 font-medium border border-white/10 rounded px-1.5 py-0.5">

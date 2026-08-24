@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState } from "react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router";
 import { ArrowRight, Leaf, Zap, Shield, BarChart3, Map, ChevronRight } from "lucide-react";
@@ -39,7 +39,7 @@ const FEATURES = [
 
 export default function Landing() {
   const navigate = useNavigate();
-  const [hoveredPopular, setHoveredPopular] = useState<number | null>(null);
+  const [hoveredPopular] = useState<number | null>(null);
 
   return (
     <div className="min-h-screen bg-[#0f172a] text-white overflow-hidden">
@@ -64,7 +64,7 @@ export default function Landing() {
                 <Map className="h-5 w-5 text-white" />
               </div>
               <span className="text-xl font-extrabold tracking-tight">
-                microway
+                MicroWay
               </span>
             </div>
             <div className="flex items-center gap-3">
@@ -141,68 +141,8 @@ export default function Landing() {
                 Get Started Free
                 <ArrowRight className="h-4.5 w-4.5" />
               </motion.button>
-
             </motion.div>
           </div>
-
-          {/* Mock comparison preview */}
-          <motion.div
-            initial={{ opacity: 0, y: 40 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, delay: 0.5 }}
-            className="mt-14 max-w-4xl mx-auto"
-          >
-            <div className="bg-[#1e293b]/80 backdrop-blur-xl border border-white/10 rounded-2xl p-6 shadow-2xl">
-              <div className="flex items-center gap-3 mb-5">
-                <div className="flex gap-1.5">
-                  <div className="w-3 h-3 rounded-full bg-red-500" />
-                  <div className="w-3 h-3 rounded-full bg-yellow-500" />
-                  <div className="w-3 h-3 rounded-full bg-green-500" />
-                </div>
-                <span className="text-xs text-slate-500 font-medium">
-                  Connaught Place → Saket
-                </span>
-              </div>
-
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                {[
-                  { icon: "🚇", mode: "Metro", fare: "₹30", time: "28 min", co2: "252g", best: true },
-                  { icon: "🚕", mode: "Cab", fare: "₹185", time: "24 min", co2: "2.0 kg" },
-                  { icon: "🛺", mode: "Auto", fare: "₹95", time: "38 min", co2: "805g" },
-                  { icon: "🚲", mode: "Cycle", fare: "Free", time: "65 min", co2: "0g", green: true },
-                ].map((m, i) => (
-                  <motion.div
-                    key={m.mode}
-                    initial={{ opacity: 0, y: 15 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.7 + i * 0.1 }}
-                    className={`p-4 rounded-xl border transition-all ${
-                      m.best
-                        ? "border-teal-500/40 bg-teal-500/10 shadow-lg shadow-teal-500/10"
-                        : "border-white/5 bg-white/[0.03]"
-                    }`}
-                  >
-                    <span className="text-2xl">{m.icon}</span>
-                    <div className="text-sm font-bold mt-2 text-white">
-                      {m.mode}
-                    </div>
-                    <div className="text-xs text-slate-400 mt-1.5 space-y-0.5">
-                      <div className="text-slate-300 font-semibold">{m.fare}</div>
-                      <div>{m.time}</div>
-                      <div className={m.green ? "text-emerald-400 font-semibold" : ""}>
-                        {m.co2} CO₂
-                      </div>
-                    </div>
-                    {m.best && (
-                      <div className="mt-2 text-[10px] font-bold px-2 py-0.5 bg-teal-500/20 text-teal-300 rounded-full inline-block">
-                        Best Overall
-                      </div>
-                    )}
-                  </motion.div>
-                ))}
-              </div>
-            </div>
-          </motion.div>
         </div>
       </section>
 
@@ -216,7 +156,7 @@ export default function Landing() {
               viewport={{ once: true }}
               className="text-3xl sm:text-4xl font-black tracking-tight mb-3"
             >
-              Why microway?
+              Why MicroWay?
             </motion.h2>
             <p className="text-slate-400 max-w-lg mx-auto">
               The first route planner that treats Delhi's air quality as a first-class
@@ -268,7 +208,7 @@ export default function Landing() {
               Your commute, your climate choice
             </h2>
             <p className="text-slate-400 max-w-2xl mx-auto mb-10 leading-relaxed">
-              Every trip across Delhi produces emissions. microway shows you the CO₂
+              Every trip across Delhi produces emissions. MicroWay shows you the CO₂
               cost of every mode so you can choose cleaner — and crowdsource air quality
               data to help your neighbours do the same.
             </p>
@@ -348,7 +288,7 @@ export default function Landing() {
       {/* Footer */}
       <footer className="py-8 border-t border-white/5 text-center">
         <p className="text-xs text-slate-600">
-          microway — Better routes, cleaner air, smarter Delhi
+          MicroWay — Better routes, cleaner air, smarter Delhi
         </p>
       </footer>
     </div>

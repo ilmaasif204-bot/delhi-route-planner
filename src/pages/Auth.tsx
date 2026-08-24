@@ -110,10 +110,9 @@ function Auth({ redirectAfterAuth }: AuthProps = {}) {
           >
             <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-teal-400 to-emerald-500 flex items-center justify-center shadow-lg shadow-teal-500/25">
               <Map className="h-5.5 w-5.5 text-white" />
-            </div>
-            <span className="text-2xl font-extrabold tracking-tight text-white">
-              microway
-            </span>
+            </div>              <span className="text-2xl font-extrabold tracking-tight text-white">
+                MicroWay
+              </span>
           </button>
 
           <Card className="min-w-[360px] pb-0 border border-white/10 bg-[#1e293b]/90 backdrop-blur-xl shadow-2xl shadow-black/30">
@@ -121,10 +120,10 @@ function Auth({ redirectAfterAuth }: AuthProps = {}) {
               <>
                 <CardHeader className="text-center pt-6">
                   <CardTitle className="text-xl font-bold text-white">
-                    Welcome aboard
+                    Welcome to MicroWay
                   </CardTitle>
                   <CardDescription className="text-slate-400">
-                    Enter your email to sign up or log in
+                    Enter your email to log in
                   </CardDescription>
                 </CardHeader>
                 <form onSubmit={handleEmailSubmit}>
